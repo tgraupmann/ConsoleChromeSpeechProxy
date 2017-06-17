@@ -1,14 +1,37 @@
 ﻿using System;
-using System.Net;
+using System.IO;
+using System.Threading;
 
 namespace ConsoleChromeSpeechProxy
 {
     class MainClass
     {
+        private static App _mApp = null;
+
         public static void Main(string[] args)
         {
-            HttpListener yeah = new HttpListener();
-            Console.WriteLine("Hello World!");
+            if (args.Length > 0)
+            {
+                string strPort = args[0];
+                int port;
+                if (int.TryParse(strPort, out port))
+                {
+                    Server.SetProxyPort(port);
+                }
+            }
+            string[] commandArgs = Environment.GetCommandLineArgs();
+            if (commandArgs.Length > 0)
+            {
+                FileInfo fi = new FileInfo(commandArgs[0]);
+                string installDir = fi.DirectoryName;
+                Server.SetInstallDirectory(installDir);
+            }
+
+            _mApp = new App();
+            while (_mApp.IsRunning())
+            {
+                Thread.Sleep(0);
+            }
         }
     }
 }
