@@ -26,7 +26,9 @@ namespace ConsoleChromeSpeechProxy
 
         public void CloseForm()
         {
+            Console.WriteLine("Close App");
             _mIsRunning = false;
+            _mServer.StopProxy();
         }
 
         public void DisplayUIStartProxy()
@@ -64,7 +66,7 @@ namespace ConsoleChromeSpeechProxy
 
         public void SetUnityConnectedText(string text)
         {
-            Console.WriteLine("UnityConnected: {0}", text);
+            //Console.WriteLine("UnityConnected: {0}", text);
         }
     }
 }

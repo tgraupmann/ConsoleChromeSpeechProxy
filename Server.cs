@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿#define MAC
+
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -13,7 +15,10 @@ namespace ConsoleChromeSpeechProxy
     class Server
     {
         const string APP_CMD = @"C:\Windows\System32\cmd.exe";
-        const string APP_CHROME = @"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe";
+        const string APP_CHROME_WIN = @"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe";
+
+        const string APP_BASH_MAC = "/bin/bash";
+        const string APP_CHROME_MAC = @"/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome";
 
         const string KEY_CHROME_SPEECH_PROXY = "CHROME_SPEECH_PROXY";
         const string KEY_INSTALL_DIRECTORY = "INSTALL_DIRECTORY";
@@ -72,7 +77,7 @@ namespace ConsoleChromeSpeechProxy
 
         private Thread _mThread = null;
 
-        private bool _mWaitForExit = true;        
+        private bool _mWaitForExit = true;
 
 
         private string _mWebGLSpeechDetectionPluginLanguages = null; //start as null
@@ -323,14 +328,26 @@ namespace ConsoleChromeSpeechProxy
 
         public void OpenChrome()
         {
+#if WINDOWS
             System.Diagnostics.Process process = new System.Diagnostics.Process();
             string args = string.Format("/c start \"\" \"{0}\" {1}",
-                APP_CHROME,
+                APP_CHROME_WIN,
                 string.Format("http://localhost:{0}", GetProxyPort()));
             process.StartInfo = new System.Diagnostics.ProcessStartInfo(APP_CMD,
                 args);
             process.Start();
-        }
+#elif MAC
+			System.Diagnostics.Process process = new System.Diagnostics.Process();
+            string args = string.Format("-c \"{0} {1}\"",
+				APP_CHROME_MAC,
+				string.Format("http://localhost:{0}", GetProxyPort()));
+			process.StartInfo = new System.Diagnostics.ProcessStartInfo(APP_BASH_MAC,
+				args);
+			process.Start();
+
+            Console.WriteLine("{0} {1}", APP_BASH_MAC, args);
+#endif
+		}
 
         private void RestartWorker()
         {
