@@ -21,8 +21,8 @@ namespace ConsoleChromeSpeechProxy
         const string APP_CHROME_MAC = @"/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome";
 
         const string KEY_CHROME_SPEECH_PROXY = "CHROME_SPEECH_PROXY";
-        const string KEY_INSTALL_DIRECTORY = "INSTALL_DIRECTORY";
-        const string KEY_PROXY_PORT = "PROXY_PORT";
+        const string KEY_INSTALL_DIRECTORY = "installDirectory";
+        const string KEY_PROXY_PORT = "proxyPort";
 
         const string PATH_ROOT = "/";
         const string PATH_CROSS_DOMAIN_POLICY = "/crossdomain.xml";
@@ -430,9 +430,16 @@ namespace ConsoleChromeSpeechProxy
         private static void SetupAppDataFolder()
         {
             string path = GetAppDataFolder();
-            if (!Directory.Exists(path))
+            try
             {
-                Directory.CreateDirectory(path);
+                if (!Directory.Exists(path))
+                {
+                    Directory.CreateDirectory(path);
+                }
+            }
+            catch (Exception)
+            {
+                
             }
         }
 
