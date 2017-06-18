@@ -27,19 +27,19 @@ The `Chrome Browser` and `Unity` communicate with the proxy and the proxy passes
 
 # Quick Start
 
-1 Test your browser for compatibility with the [Chrome Speech Demo](https://www.google.com/intl/en/chrome/demos/speech.html)
+* Test your browser for compatibility with the [Chrome Speech Demo](https://www.google.com/intl/en/chrome/demos/speech.html)
 
 ## Windows
 
-2 Install and launch the proxy which creates a config file so that `Unity` knows where to find the proxy
+1 Install and launch the proxy which creates a config file so that `Unity` knows where to find the proxy
 
-3 Start `Unity` and connect
+2 Start `Unity` and connect
 
-4 `Unity` proxy management is now able to `Launch` and `Close` the proxy
+3 `Unity` proxy management is now able to `Launch` and `Close` the proxy
 
-5 `Unity` proxy management can open and close `Chrome Proxy Tab` when the proxy is running
+4 `Unity` proxy management can open and close `Chrome Proxy Tab` when the proxy is running
 
-6 Close the proxy before changing the port in `Unity`
+5 Close the proxy before changing the port in `Unity`
 
 ## Mac
 
