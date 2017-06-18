@@ -1,6 +1,4 @@
-﻿#define MAC
-
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -326,27 +324,35 @@ namespace ConsoleChromeSpeechProxy
             return _mClosing;
         }
 
+        public static bool IsMacOS()
+        {
+            return Environment.OSVersion.VersionString.ToUpper().StartsWith("UNIX");
+        }
+
         public void OpenChrome()
         {
-#if WINDOWS
             System.Diagnostics.Process process = new System.Diagnostics.Process();
-            string args = string.Format("/c start \"\" \"{0}\" {1}",
-                APP_CHROME_WIN,
-                string.Format("http://localhost:{0}", GetProxyPort()));
-            process.StartInfo = new System.Diagnostics.ProcessStartInfo(APP_CMD,
-                args);
-            process.Start();
-#elif MAC
-			System.Diagnostics.Process process = new System.Diagnostics.Process();
-            string args = string.Format("-c \"{0} {1}\"",
+
+            if (IsMacOS())
+            {
+				string args = string.Format("-c \"{0} {1}\"",
 				APP_CHROME_MAC,
 				string.Format("http://localhost:{0}", GetProxyPort()));
-			process.StartInfo = new System.Diagnostics.ProcessStartInfo(APP_BASH_MAC,
-				args);
-			process.Start();
+				process.StartInfo = new System.Diagnostics.ProcessStartInfo(APP_BASH_MAC,
+					args);
+				process.Start();
 
-            Console.WriteLine("{0} {1}", APP_BASH_MAC, args);
-#endif
+				Console.WriteLine("{0} {1}", APP_BASH_MAC, args);
+            }
+            else // Windows
+            {
+				string args = string.Format("/c start \"\" \"{0}\" {1}",
+				APP_CHROME_WIN,
+				string.Format("http://localhost:{0}", GetProxyPort()));
+				process.StartInfo = new System.Diagnostics.ProcessStartInfo(APP_CMD,
+					args);
+				process.Start();
+            }
 		}
 
         private void RestartWorker()

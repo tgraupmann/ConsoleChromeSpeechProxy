@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿using System;
 using System.IO;
 using System.Threading;
 
@@ -10,7 +10,7 @@ namespace ConsoleChromeSpeechProxy
 
         public static void Main(string[] args)
         {
-            Console.WriteLine("OSVersion: {0}", Environment.OSVersion.ToString());
+            Console.WriteLine("OSVersion: {0}", Environment.OSVersion.VersionString);
 
             if (args.Length > 0)
             {
