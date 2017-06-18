@@ -23,7 +23,7 @@ The `Chrome Browser` and `Unity` communicate with the proxy and the proxy passes
 
 * Windows: Download [Chrome Speech Proxy Installer (Windows)](https://github.com/tgraupmann/ConsoleChromeSpeechProxy/releases/tag/1.0)
 
-* Mac: Download ...
+* Mac: Download [Chrome Speech Proxy (Mac)](https://github.com/tgraupmann/ConsoleChromeSpeechProxy/releases/tag/1.0-Mac)
 
 # Quick Start
 
@@ -47,10 +47,12 @@ The Mac build uses the `Mono.framework` to launch the proxy.
 
 1 Install the [.Net Core](https://www.microsoft.com/net/core) for Mac
 
-2 Launch the proxy using the `Mono.framework` in the terminal
+2 Unzip `ConsoleChromeSpeechProxy.zip` to a folder
+
+3 Launch the proxy using the `Mono.framework` in the terminal
 
 ```bash
 "/Library/Frameworks/Mono.framework/Versions/5.0.1/bin/mono32" "ConsoleChromeSpeechProxy.exe"
 ```
 
-3 Close the proxy as `Unity` will be able to find and launch the proxy at this point
+4 Close the proxy as `Unity` will be able to find and launch the proxy at this point
