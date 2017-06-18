@@ -10,6 +10,8 @@ namespace ConsoleChromeSpeechProxy
 
         public static void Main(string[] args)
         {
+            Console.WriteLine("OSVersion: {0}", Environment.OSVersion.ToString());
+
             if (args.Length > 0)
             {
                 string strPort = args[0];
