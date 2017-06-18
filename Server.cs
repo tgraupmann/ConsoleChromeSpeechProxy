@@ -19,6 +19,7 @@ namespace ConsoleChromeSpeechProxy
         const string APP_CHROME_MAC = @"/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome";
 
         const string KEY_CHROME_SPEECH_PROXY = "CHROME_SPEECH_PROXY";
+        const string KEY_APP_NAME = "appName";
         const string KEY_INSTALL_DIRECTORY = "installDirectory";
         const string KEY_PROXY_PORT = "proxyPort";
 
@@ -394,6 +395,14 @@ namespace ConsoleChromeSpeechProxy
 
             }
         }
+
+		public static void SetAppName(string appName)
+		{
+			SetupAppDataFolder();
+			JObject json = GetAppConfigJson();
+			json[KEY_APP_NAME] = appName;
+			SaveAppConfigJson(json);
+		}
 
         public void SetClosing()
         {

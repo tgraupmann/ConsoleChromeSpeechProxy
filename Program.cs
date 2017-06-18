@@ -10,7 +10,10 @@ namespace ConsoleChromeSpeechProxy
 
         public static void Main(string[] args)
         {
+            Console.WriteLine("App: {0}", AppDomain.CurrentDomain.FriendlyName);
             Console.WriteLine("OSVersion: {0}", Environment.OSVersion.VersionString);
+
+            Server.SetAppName(AppDomain.CurrentDomain.FriendlyName);
 
             if (args.Length > 0)
             {
