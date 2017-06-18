@@ -1,2 +1,2 @@
-sudo "/Applications/Visual Studio.app/Contents/MacOS/VisualStudio"
+"/Applications/Visual Studio.app/Contents/MacOS/VisualStudio" &
 
