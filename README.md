@@ -29,12 +29,28 @@ The `Chrome Browser` and `Unity` communicate with the proxy and the proxy passes
 
 1 Test your browser for compatibility with the [Chrome Speech Demo](https://www.google.com/intl/en/chrome/demos/speech.html)
 
+## Windows
+
 2 Install and launch the proxy which creates a config file so that `Unity` knows where to find the proxy
 
 3 Start `Unity` and connect
 
-4 Unity proxy management is now able to `Launch` and `Close` the proxy
+4 `Unity` proxy management is now able to `Launch` and `Close` the proxy
 
-5 Unity proxy management can open and close `Chrome Proxy Tab` when the proxy is running
+5 `Unity` proxy management can open and close `Chrome Proxy Tab` when the proxy is running
 
-6 Close the proxy before changing the port in Unity
+6 Close the proxy before changing the port in `Unity`
+
+## Mac
+
+The Mac build uses the `Mono.framework` to launch the proxy.
+
+1 Install the [.Net Core](https://www.microsoft.com/net/core) for Mac
+
+2 Launch the proxy using the `Mono.framework` in the terminal
+
+```bash
+"/Library/Frameworks/Mono.framework/Versions/5.0.1/bin/mono32" "ConsoleChromeSpeechProxy.exe"
+```
+
+3 Close the proxy as `Unity` will be able to find and launch the proxy at this point
