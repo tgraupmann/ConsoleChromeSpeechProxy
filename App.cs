@@ -21,6 +21,10 @@ namespace ConsoleChromeSpeechProxy
 
         public void AppendStatusText(string text)
         {
+            if (string.IsNullOrEmpty(text))
+            {
+                return;
+            }
             Console.WriteLine("StatusText: {0}", text);
         }
 
@@ -51,7 +55,7 @@ namespace ConsoleChromeSpeechProxy
 
         public void SetChromeConnectedText(string text)
         {
-            Console.WriteLine("ChromeConnected: {0}", text);
+            //Console.WriteLine("ChromeConnected: {0}", text);
         }
 
         public void SetPortText(string text)
@@ -61,7 +65,11 @@ namespace ConsoleChromeSpeechProxy
 
         public void SetStatusText(string text)
         {
-            Console.WriteLine("Status: {0}", text);
+            if (string.IsNullOrEmpty(text))
+            {
+                return;
+            }
+            Console.WriteLine("StatusText: {0}", text);
         }
 
         public void SetUnityConnectedText(string text)

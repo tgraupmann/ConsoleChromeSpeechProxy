@@ -334,11 +334,12 @@ namespace ConsoleChromeSpeechProxy
         {
             System.Diagnostics.Process process = new System.Diagnostics.Process();
 
+            string uri = string.Format("http://localhost:{0}", GetProxyPort());
+            Console.WriteLine("Listening: {0}", uri);
+
             if (IsMacOS())
             {
-				string args = string.Format("-c \"{0} {1}\"",
-				APP_CHROME_MAC,
-				string.Format("http://localhost:{0}", GetProxyPort()));
+				string args = string.Format("-c \"{0} {1}\"", APP_CHROME_MAC, uri);
 				process.StartInfo = new System.Diagnostics.ProcessStartInfo(APP_BASH_MAC,
 					args);
 				process.Start();
@@ -347,9 +348,7 @@ namespace ConsoleChromeSpeechProxy
             }
             else // Windows
             {
-				string args = string.Format("/c start \"\" \"{0}\" {1}",
-				APP_CHROME_WIN,
-				string.Format("http://localhost:{0}", GetProxyPort()));
+				string args = string.Format("/c start \"\" \"{0}\" {1}", APP_CHROME_WIN, uri);
 				process.StartInfo = new System.Diagnostics.ProcessStartInfo(APP_CMD,
 					args);
 				process.Start();
@@ -467,6 +466,10 @@ namespace ConsoleChromeSpeechProxy
                 _mWaitForExit = true;
 
                 int port = GetProxyPort();
+
+                string uri = string.Format("http://localhost:{0}", port);
+                Console.WriteLine("Listening: {0}", uri);
+
                 _mHttpListener = new HttpListener();
 
                 _mHttpListener.Prefixes.Add(string.Format("http://*:{0}/", port));
