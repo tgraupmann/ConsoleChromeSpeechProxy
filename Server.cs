@@ -217,13 +217,14 @@ namespace ConsoleChromeSpeechProxy
 
         public static int GetProxyPort()
         {
-            int port = 83;
+            int port = 5000;
 
             JObject json = GetAppConfigJson();
             if (json[KEY_PROXY_PORT] != null &&
                 json[KEY_PROXY_PORT].Type == JTokenType.Integer)
             {
                 port = (int)json[KEY_PROXY_PORT];
+                Console.WriteLine("Use port: {0}", port);
             }
             else
             {
@@ -383,15 +384,18 @@ namespace ConsoleChromeSpeechProxy
                 {
                     using (StreamWriter sw = new StreamWriter(fs))
                     {
-                        string contents = json.ToString();
-                        sw.Write(contents);
+                        if (json != null)
+                        {
+                            string contents = json.ToString();
+                            sw.Write(contents);
+                        }
                         sw.Flush();
                     }
                 }
             }
             catch (Exception)
             {
-
+                Console.Error.WriteLine("Failed to save app config!");
             }
         }
 
@@ -424,6 +428,7 @@ namespace ConsoleChromeSpeechProxy
 
         public static void SetProxyPort(int port)
         {
+            Console.WriteLine("Set port: {0}", port);
             SetupAppDataFolder();
             JObject json = GetAppConfigJson();
             json[KEY_PROXY_PORT] = port;
