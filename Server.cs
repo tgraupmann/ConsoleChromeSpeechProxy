@@ -276,7 +276,6 @@ namespace ConsoleChromeSpeechProxy
                     _mGetLanguagesChunks.Append(chunk);
                     string encoded = _mGetLanguagesChunks.ToString();
                     string decoded = HttpUtility.UrlDecode(encoded);
-                    Console.WriteLine(decoded);
                     _mWebGLSpeechDetectionPluginLanguages = decoded;
                 }
             }
