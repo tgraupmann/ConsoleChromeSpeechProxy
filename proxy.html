@@ -618,7 +618,7 @@ var WebGLSpeechDetectionPlugin = {
           }]
       };
 
-    console.log(JSON.stringify(document.mWebGLSpeechDetectionLanguages, undefined, 2));
+    //console.log(JSON.stringify(document.mWebGLSpeechDetectionLanguages, undefined, 2));
     var returnStr = encodeURIComponent(JSON.stringify(document.mWebGLSpeechDetectionLanguages));
 
       var chunkSize = 1024;
@@ -646,7 +646,7 @@ var WebGLSpeechDetectionPlugin = {
               } else {
                   msg = "SpeechDetectionGetLanguagesChunk:" + chunks[i];
               }
-              console.log('index', i, msg, chunks[i]);
+              //console.log('index', i, msg, chunks[i]);
               proxyData(msg);
           }
       } else {
