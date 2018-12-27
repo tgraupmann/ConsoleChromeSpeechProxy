@@ -49,9 +49,13 @@ namespace ConsoleChromeSpeechProxy
         const string PATH_SPEECH_SYNTHESIS_SET_RATE = "/SpeechSynthesisSetRate";
         const string PATH_SPEECH_SYNTHESIS_SET_TEXT = "/SpeechSynthesisSetText";
         const string PATH_SPEECH_SYNTHESIS_SET_VOICE = "/SpeechSynthesisSetVoice";
+        const string PATH_SPEECH_SYNTHESIS_SET_VOLUME = "/SpeechSynthesisSetVolume";
         const string PATH_SPEECH_SYNTHESIS_SPEAK = "/SpeechSynthesisSpeak";
 
         const string TOKEN_SPEECH_DETECTION_GET_LANGUAGES = "SpeechDetectionGetLanguages:";
+        const string TOKEN_SPEECH_DETECTION_GET_LANGUAGES_CHUNK = "SpeechDetectionGetLanguagesChunk:";
+        const string TOKEN_SPEECH_DETECTION_GET_LANGUAGES_CHUNK_FIRST = "SpeechDetectionGetLanguagesChunkFirst:";
+        const string TOKEN_SPEECH_DETECTION_GET_LANGUAGES_CHUNK_LAST = "SpeechDetectionGetLanguagesChunkLast:";
         const string TOKEN_SPEECH_DETECTION_GET_RESULT = "SpeechDetectionGetResult:";
         const string TOKEN_SPEECH_DETECTION_INIT = "SpeechDetectionInit:";
         const string TOKEN_SPEECH_DETECTION_ON_END = "SpeechSynthesisOnEnd:";
@@ -92,6 +96,8 @@ namespace ConsoleChromeSpeechProxy
         private List<int> _mWebGLSpeechSynthesisPluginUtterances = new List<int>();
 
         private List<string> _mWebGLSpeechSynthesisPluginVoices = new List<string>();
+
+        private StringBuilder _mGetLanguagesChunks = new StringBuilder();
 
 
         public Server(IForm form)
@@ -249,6 +255,41 @@ namespace ConsoleChromeSpeechProxy
             {
             }
 
+            else if (request.StartsWith(TOKEN_SPEECH_DETECTION_GET_LANGUAGES_CHUNK_FIRST))
+            {
+                if (_mGetLanguagesChunks.Length > 0)
+                {
+                    _mGetLanguagesChunks.Remove(0, _mGetLanguagesChunks.Length);
+                }
+                string chunk = request.Substring(TOKEN_SPEECH_DETECTION_GET_LANGUAGES_CHUNK_FIRST.Length);
+                if (!string.IsNullOrEmpty(chunk))
+                {
+                    _mGetLanguagesChunks.Append(chunk);
+                }
+            }
+
+            else if (request.StartsWith(TOKEN_SPEECH_DETECTION_GET_LANGUAGES_CHUNK_LAST))
+            {
+                string chunk = request.Substring(TOKEN_SPEECH_DETECTION_GET_LANGUAGES_CHUNK_LAST.Length);
+                if (!string.IsNullOrEmpty(chunk))
+                {
+                    _mGetLanguagesChunks.Append(chunk);
+                    string encoded = _mGetLanguagesChunks.ToString();
+                    string decoded = HttpUtility.UrlDecode(encoded);
+                    Console.WriteLine(decoded);
+                    _mWebGLSpeechDetectionPluginLanguages = decoded;
+                }
+            }
+
+            else if (request.StartsWith(TOKEN_SPEECH_DETECTION_GET_LANGUAGES_CHUNK))
+            {
+                string chunk = request.Substring(TOKEN_SPEECH_DETECTION_GET_LANGUAGES_CHUNK.Length);
+                if (!string.IsNullOrEmpty(chunk))
+                {
+                    _mGetLanguagesChunks.Append(chunk);
+                }
+            }
+
             else if (request.StartsWith(TOKEN_SPEECH_DETECTION_GET_LANGUAGES))
             {
                 string jsonData = request.Substring(TOKEN_SPEECH_DETECTION_GET_LANGUAGES.Length);
@@ -257,7 +298,7 @@ namespace ConsoleChromeSpeechProxy
                     string decoded = HttpUtility.UrlDecode(jsonData);
                     _mWebGLSpeechDetectionPluginLanguages = decoded;
                 }
-            }
+            }            
 
             else if (request.StartsWith(TOKEN_SPEECH_DETECTION_GET_RESULT))
             {
@@ -800,6 +841,23 @@ namespace ConsoleChromeSpeechProxy
                                     voice = UTF8Encoding.UTF8.GetString(decodedBytes);
                                 }
                                 RunJavaScript(string.Format("WebGLSpeechSynthesisPlugin.SetUtteranceVoice({0}, \"{1}\")", index, voice));
+                            }
+                        }
+
+                        else if (context.Request.Url.LocalPath.EndsWith(PATH_SPEECH_SYNTHESIS_SET_VOLUME))
+                        {
+                            DetectedUnity();
+                            System.Collections.Specialized.NameValueCollection parameters = HttpUtility.ParseQueryString(context.Request.Url.Query);
+                            string utterance = parameters["utterance"];
+                            int index;
+                            if (int.TryParse(utterance, out index))
+                            {
+                                string strVolume = parameters["volume"];
+                                float volume;
+                                if (float.TryParse(strVolume, out volume))
+                                {
+                                    RunJavaScript(string.Format("WebGLSpeechSynthesisPlugin.SetUtteranceVolume({0}, {1})", index, volume));
+                                }
                             }
                         }
 

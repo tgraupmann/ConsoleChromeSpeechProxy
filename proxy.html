@@ -18,8 +18,13 @@ function b64EncodeUnicode(str) {
 function proxyData(message) {
 
   var xhr = new XMLHttpRequest();
-  xhr.open('GET', "http://localhost:__PROXY_PORT__/ProxyData?message="+b64EncodeUnicode(message), true);
-  xhr.send();
+  xhr.open('GET', "http://localhost:__PROXY_PORT__/ProxyData?message=" + b64EncodeUnicode(message), true);
+    xhr.onprogress = function () {
+    if (xhr.status != 200) {
+      console.log('Failed to proxy data', xhr.status, message);
+    }
+  };
+  xhr.send(null);
 
   function processRequest(e) {
     //console.log("process request:");
@@ -37,7 +42,11 @@ function proxyData(message) {
 		  continue;
 		}
 	    //console.log("Execute: "+js);
-	    eval(js);
+        try {
+          eval(js);
+        } catch(err) {
+          console.log("Failed to execute script: "+js);
+        }
 	  }
     }
   }
@@ -609,11 +618,41 @@ var WebGLSpeechDetectionPlugin = {
           }]
       };
 
-    //console.log(JSON.stringify(document.mWebGLSpeechDetectionLanguages, undefined, 2));
+    console.log(JSON.stringify(document.mWebGLSpeechDetectionLanguages, undefined, 2));
     var returnStr = encodeURIComponent(JSON.stringify(document.mWebGLSpeechDetectionLanguages));
 
-    var msg = "SpeechDetectionGetLanguages:" + returnStr;
-    proxyData(msg);
+      var chunkSize = 1024;
+      if (returnStr.length > chunkSize) {
+          var chunk = function (input, size) {
+              var parts = [];
+              for (var i = 0; i < input.length; i += size) {
+                  var part;
+                  if ((i + size) < input.length) {
+                      part = input.substr(i, size);
+                  } else {
+                      part = input.substr(i, input.length % size);
+                  }
+                  parts.push(part);
+              }
+              return parts;
+          };
+          var chunks = chunk(returnStr, chunkSize);
+          for (var i = 0; i < chunks.length; ++i) {
+              var msg;
+              if (i == 0) {
+                  msg = "SpeechDetectionGetLanguagesChunkFirst:" + chunks[i];
+              } else if ((i + 1) == chunks.length) {
+                  msg = "SpeechDetectionGetLanguagesChunkLast:" + chunks[i];
+              } else {
+                  msg = "SpeechDetectionGetLanguagesChunk:" + chunks[i];
+              }
+              console.log('index', i, msg, chunks[i]);
+              proxyData(msg);
+          }
+      } else {
+          var msg = "SpeechDetectionGetLanguages:" + returnStr;
+          proxyData(msg);
+      }
   },
   
   SetLanguage: function(dialect) {
@@ -783,6 +822,19 @@ var WebGLSpeechSynthesisPlugin = {
                 return;
             }
         }
+    },
+    SetUtteranceVolume: function (index, volume) {
+        if (document.mWebGLSpeechSynthesisPluginUtterances == undefined) {
+            return;
+        }
+        if (document.mWebGLSpeechSynthesisPluginUtterances.length <= index) {
+            return;
+        }
+        var instance = document.mWebGLSpeechSynthesisPluginUtterances[index];
+        if (instance == undefined) {
+            return;
+        }
+        instance.volume = volume;
     },
     Speak: function (index) {
         if (typeof speechSynthesis === "undefined") {
