@@ -32,6 +32,8 @@ namespace ConsoleChromeSpeechProxy
         const string PATH_OPEN_BROWSER_TAB = "/OpenBrowserTab";
         const string PATH_SET_PROXY_PORT = "/SetProxyPort";
 
+        const string PATH_SPEECH_DETECTION_START_RECOGNITION = "/SpeechDetectionStartRecognition";
+        const string PATH_SPEECH_DETECTION_STOP_RECOGNITION = "/SpeechDetectionStopRecognition";
         const string PATH_SPEECH_DETECTION_ABORT = "/SpeechDetectionAbort";
         const string PATH_SPEECH_DETECTION_INIT = "/SpeechDetectionInit";
         const string PATH_SPEECH_DETECTION_GET_LANGUAGES = "/SpeechDetectionGetLanguages";
@@ -678,6 +680,18 @@ namespace ConsoleChromeSpeechProxy
                         {
                             _mWebGLSpeechDetectionPluginResults.Clear(); //clear previous results
                             DetectedUnity();
+                        }
+
+                        else if (context.Request.Url.LocalPath.EndsWith(PATH_SPEECH_DETECTION_START_RECOGNITION))
+                        {
+                            DetectedUnity();
+                            RunJavaScript("WebGLSpeechDetectionPlugin.Start()");
+                        }
+
+                        else if (context.Request.Url.LocalPath.EndsWith(PATH_SPEECH_DETECTION_STOP_RECOGNITION))
+                        {
+                            DetectedUnity();
+                            RunJavaScript("WebGLSpeechDetectionPlugin.Stop()");
                         }
 
                         else if (context.Request.Url.LocalPath.EndsWith(PATH_SPEECH_DETECTION_ABORT))
