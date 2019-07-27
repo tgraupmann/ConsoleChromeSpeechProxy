@@ -29,6 +29,16 @@ The `Chrome Browser` and `Unity` communicate with the proxy and the proxy passes
 
 * Test your browser for compatibility with the [Chrome Speech Demo](https://www.google.com/intl/en/chrome/demos/speech.html)
 
+* Launch the proxy which should start on the default 5000 port.
+
+![image_1](images/image_1.png)
+
+* Verify the proxy is running by browsing [localhost:5000](http://localhost:5000)
+
+![image_2](images/image_2.png)
+
+* Click `Enable user interaction` to allow the text-to-speech API.
+
 ## Windows
 
 1 Install and launch the proxy which creates a config file so that `Unity` knows where to find the proxy
