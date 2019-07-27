@@ -73,3 +73,17 @@ The Mac build uses the `Mono.framework` to launch the proxy.
 ```
 
 4 Close the proxy as `Unity` will be able to find and launch the proxy at this point
+
+# FAQ
+
+**User does not see Speech Detection or Speech Synthesis events firing.**
+
+* Completely close all Chrome browser windows and relaunch the browser.
+
+**User does not see Speech Proxy events**
+
+* Close all speech proxy tabs in the Chrome browser. Open a single Chrome Speech Proxy tab. Relaunch the sample.
+
+**The Speech Proxy doesn't launch**
+
+* The default port `5000` may already be in use. Try a port other than the default and relaunch the proxy.
