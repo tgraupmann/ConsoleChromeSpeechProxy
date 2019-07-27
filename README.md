@@ -37,7 +37,14 @@ The `Chrome Browser` and `Unity` communicate with the proxy and the proxy passes
 
 ![image_2](images/image_2.png)
 
-* Click `Enable user interaction` to allow the text-to-speech API.
+* Click `Enable user interaction` to enable the text-to-speech API.
+
+<table border="1"><tr><td>
+Note: In December of 2018, Chrome added a speech restriction that the speak() method can't be invoked until a web page has some user interaction.
+
+https://www.chromestatus.com/feature/5687444770914304
+</td></tr></table>
+
 
 ## Windows
 
