@@ -20,6 +20,7 @@ The `Chrome Speech Proxy` is a `Console` application that proxies speech data to
 The proxy supports speech detection and speech synthesis.
 The proxy requires `admin` or `sudo` rights to host the `HTTP` server.
 The `Chrome Browser` and `Unity` communicate with the proxy and the proxy passes data between the `Chrome Browser` and `Unity`.
+The `Chroma Browser` supports 120+ [languages](https://cloud.google.com/speech-to-text/docs/languages).
 
 # Releases
 
