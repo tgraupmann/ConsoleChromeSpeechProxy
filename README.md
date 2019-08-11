@@ -90,3 +90,7 @@ The Mac build uses the `Mono.framework` to launch the proxy.
 **The Speech Proxy doesn't launch**
 
 * The default port `5000` may already be in use. Try a port other than the default and relaunch the proxy.
+
+**Detection doesn't seem to be working**
+
+* Only one Proxy window should be open at a time. Also make sure no other browser tabs/windows are using the Microphone. With multiple microphone apps open, the browser doesn't know which one to give focus. 
