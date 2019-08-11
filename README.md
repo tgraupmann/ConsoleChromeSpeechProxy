@@ -8,6 +8,9 @@ The [WebGL For Speech Detection](https://github.com/tgraupmann/UnityWebGLSpeechD
 
 The [WebGL For Speech Synthesis](https://github.com/tgraupmann/UnityWebGLSpeechSynthesis) package is available in the [Unity Asset Store](https://www.assetstore.unity3d.com/en/#!/content/81861).
 
+The `WebGL Speech` package is available in the [Unity Asset Store](https://assetstore.unity.com/packages/tools/audio/webgl-speech-105831).
+[Online documentation](https://github.com/tgraupmann/UnityWebGLSpeech) is available.
+
 # Dependencies
 
 * The [Chrome Browser](https://www.google.com/chrome/) must be installed in order to use the proxy.
