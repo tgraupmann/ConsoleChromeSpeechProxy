@@ -94,3 +94,9 @@ The Mac build uses the `Mono.framework` to launch the proxy.
 **Detection doesn't seem to be working**
 
 * Only one Proxy window should be open at a time. Also make sure no other browser tabs/windows are using the Microphone. With multiple microphone apps open, the browser doesn't know which one to give focus. 
+
+# Support
+
+Send questions and/or feedback to the support@theylovegames.com email.
+
+Support is also available in Discord, you can reach me at "Tim Graupmann#0611".
