@@ -593,7 +593,7 @@ namespace ConsoleChromeSpeechProxy
                             DetectedChrome();
                             try
                             {
-                                using (System.IO.StreamReader sr = new System.IO.StreamReader("proxy.html"))
+                                using (System.IO.StreamReader sr = new System.IO.StreamReader("proxy.html", Encoding.UTF8))
                                 {
                                     response = sr.ReadToEnd().Replace("__PROXY_PORT__", GetProxyPort().ToString());
                                 }
@@ -887,6 +887,7 @@ namespace ConsoleChromeSpeechProxy
                         }
 
                         byte[] bytes = UTF8Encoding.UTF8.GetBytes(response);
+                        context.Response.ContentEncoding = Encoding.UTF8;
                         context.Response.OutputStream.Write(bytes, 0, bytes.Length);
                         context.Response.OutputStream.Flush();
                     }
