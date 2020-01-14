@@ -164,12 +164,10 @@ var WebGLSpeechDetectionPlugin = {
   },
   
   // language source comes from: view-source:https://www.google.com/intl/en/chrome/demos/speech.html
+  // careful with encoding, make sure UTF8 is used
   
   GetLanguages: function() {
     //console.log("GetLanguages:");
-
-    // languages from: view-source:https://www.google.com/intl/en/chrome/demos/speech.html
-    // careful with encoding, make sure UTF8 is used
     /*
     var langs =
     [

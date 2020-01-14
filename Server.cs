@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using ICSharpCode.SharpZipLib.Zip;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -591,12 +592,25 @@ namespace ConsoleChromeSpeechProxy
                             _mWebGLSpeechDetectionPluginResults.Clear(); //clear previous results
                             _mWebGLSpeechDetectionPluginOnEnd.Clear(); //clear previous results
                             DetectedChrome();
+                            byte[] buffer = null;
                             try
                             {
-                                using (System.IO.StreamReader sr = new System.IO.StreamReader("proxy.html", Encoding.UTF8))
+                                using (FileStream fs = File.Open("proxy.zip", FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                                 {
-                                    response = sr.ReadToEnd().Replace("__PROXY_PORT__", GetProxyPort().ToString());
+                                    using (var inStream = new ZipInputStream(fs))
+                                    {
+                                        ZipEntry htmlFile = inStream.GetNextEntry();
+                                        if (htmlFile != null)
+                                        {
+                                            long size = htmlFile.Size;
+                                            buffer = new byte[size];
+                                            inStream.Read(buffer, 0, buffer.Length);
+                                        }
+                                    }
                                 }
+
+                                string content = Encoding.UTF8.GetString(buffer);
+                                response = content.Replace("__PROXY_PORT__", GetProxyPort().ToString());
                             }
                             catch (Exception)
                             {
@@ -888,6 +902,7 @@ namespace ConsoleChromeSpeechProxy
 
                         byte[] bytes = UTF8Encoding.UTF8.GetBytes(response);
                         context.Response.ContentEncoding = Encoding.UTF8;
+                        context.Response.AddHeader("ContentType", "utf8");
                         context.Response.OutputStream.Write(bytes, 0, bytes.Length);
                         context.Response.OutputStream.Flush();
                     }
