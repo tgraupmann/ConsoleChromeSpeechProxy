@@ -1,4 +1,8 @@
-﻿using ICSharpCode.SharpZipLib.Zip;
+﻿//#define USE_COMPRESSION
+
+#if USE_COMPRESSION
+using ICSharpCode.SharpZipLib.Zip;
+#endif
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -595,6 +599,7 @@ namespace ConsoleChromeSpeechProxy
                             byte[] buffer = null;
                             try
                             {
+                                #if USE_COMPRESSION
                                 using (FileStream fs = File.Open("proxy.zip", FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                                 {
                                     using (var inStream = new ZipInputStream(fs))
@@ -608,6 +613,18 @@ namespace ConsoleChromeSpeechProxy
                                         }
                                     }
                                 }
+#else
+                                using (FileStream fs = File.Open("proxy.html", FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                                {
+                                    using (StreamReader sr = new StreamReader(fs, Encoding.UTF8))
+                                    {
+                                        string html = sr.ReadToEnd();
+                                        buffer = Encoding.UTF8.GetBytes(html);
+
+                                    }
+                                }
+#endif
+
 
                                 string content = Encoding.UTF8.GetString(buffer);
                                 response = content.Replace("__PROXY_PORT__", GetProxyPort().ToString());

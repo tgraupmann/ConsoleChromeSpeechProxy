@@ -16,43 +16,65 @@ function b64EncodeUnicode(str) {
   }));
 }
 
+// proxy data one message at a time
+var waitForComplete = false;
+var syncData = [];
+function proxyDataImpl(message) {
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', "http://localhost:__PROXY_PORT__/ProxyData?r=" + Date.now() + "&message=" + b64EncodeUnicode(message), true);
+    xhr.onprogress = function () {
+        if (xhr.status != 200) {
+            console.log('Failed to proxy data', xhr.status, message);
+        }
+    };
+    xhr.send(null);
+
+    function processRequest(e) {
+        //console.log("process request:");
+        if (xhr.readyState == 4 && xhr.status == 200) {
+
+            // request has completed, queue next request
+            if (syncData.length > 0) {
+                var nextRequest = syncData.shift();
+                nextRequest();
+            } else {
+                waitForComplete = false;
+            }
+
+            var response = xhr.responseText;
+            if (response == undefined || response == "") {
+                return;
+            }
+            //console.log("Response: " + response);
+            var commands = response.split("\n");
+            for (var i = 0; i < commands.length; ++i) {
+                var js = commands[i];
+                if (js == "") {
+                    continue;
+                }
+                //console.log("Execute: "+js);
+                try {
+                    eval(js);
+                } catch (err) {
+                    console.log("Failed to execute script: " + js);
+                }
+            }
+        }
+    }
+
+    xhr.onreadystatechange = processRequest;
+}
+
 function proxyData(message) {
 
-  var xhr = new XMLHttpRequest();
-  xhr.open('GET', "http://localhost:__PROXY_PORT__/ProxyData?message=" + b64EncodeUnicode(message), true);
-    xhr.onprogress = function () {
-    if (xhr.status != 200) {
-      console.log('Failed to proxy data', xhr.status, message);
+    if (waitForComplete) {
+        syncData.push(function () {
+            proxyDataImpl(message);
+        });
+    } else {
+        waitForComplete = true;
+        proxyDataImpl(message);
     }
-  };
-  xhr.send(null);
-
-  function processRequest(e) {
-    //console.log("process request:");
-    if (xhr.readyState == 4 && xhr.status == 200) {
-      var response = xhr.responseText;
-      if (response == undefined ||
-	    response == "") {
-		return;
-      }
-	  //console.log("Response: " + response);
-	  var commands = response.split("\n");
-	  for (var i=0; i < commands.length; ++i) {
-	    var js = commands[i];
-		if (js == "") {
-		  continue;
-		}
-	    //console.log("Execute: "+js);
-        try {
-          eval(js);
-        } catch(err) {
-          console.log("Failed to execute script: "+js);
-        }
-	  }
-    }
-  }
-
-  xhr.onreadystatechange = processRequest;
 }
 
 var WebGLSpeechDetectionPlugin = {
@@ -1162,7 +1184,9 @@ var WebGLSpeechDetectionPlugin = {
       };
 
     //console.log(JSON.stringify(document.mWebGLSpeechDetectionLanguages, undefined, 2));
-    var returnStr = encodeURIComponent(JSON.stringify(document.mWebGLSpeechDetectionLanguages));
+      var returnStr = encodeURIComponent(JSON.stringify(document.mWebGLSpeechDetectionLanguages));
+
+      var proxyIndex = 0;
 
       var chunkSize = 1024;
       if (returnStr.length > chunkSize) {
@@ -1189,10 +1213,8 @@ var WebGLSpeechDetectionPlugin = {
               } else {
                   msg = "SpeechDetectionGetLanguagesChunk:" + chunks[i];
               }
-              //console.log('index', i, msg, chunks[i]);
-              setTimeout(function () {
-                  proxyData(msg);
-              }, i * 100);
+              //console.log('GetLanguages', 'index', i, msg, chunks[i]);
+              proxyData(msg);
           }
       } else {
           var msg = "SpeechDetectionGetLanguages:" + returnStr;
