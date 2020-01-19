@@ -1190,7 +1190,9 @@ var WebGLSpeechDetectionPlugin = {
                   msg = "SpeechDetectionGetLanguagesChunk:" + chunks[i];
               }
               //console.log('index', i, msg, chunks[i]);
-              proxyData(msg);
+              setTimeout(function () {
+                  proxyData(msg);
+              }, i * 100);
           }
       } else {
           var msg = "SpeechDetectionGetLanguages:" + returnStr;
