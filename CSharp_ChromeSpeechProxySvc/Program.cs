@@ -1,11 +1,13 @@
-﻿using System;
+﻿// Ref: https://stackoverflow.com/questions/9021075/how-to-create-an-installer-for-a-net-windows-service-using-visual-studio
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.ServiceProcess;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CSharp_ChromeSpeechProxySvc
+namespace ChromeSpeechProxySvc
 {
     static class Program
     {

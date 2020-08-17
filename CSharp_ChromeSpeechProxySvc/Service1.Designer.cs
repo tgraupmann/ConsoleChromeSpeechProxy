@@ -1,4 +1,4 @@
-﻿namespace CSharp_ChromeSpeechProxySvc
+﻿namespace ChromeSpeechProxySvc
 {
     partial class Service1
     {

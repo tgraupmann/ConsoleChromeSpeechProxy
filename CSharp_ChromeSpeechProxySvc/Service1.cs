@@ -8,7 +8,7 @@ using System.ServiceProcess;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CSharp_ChromeSpeechProxySvc
+namespace ChromeSpeechProxySvc
 {
     public partial class Service1 : ServiceBase
     {
