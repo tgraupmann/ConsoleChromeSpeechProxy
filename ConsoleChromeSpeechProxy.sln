@@ -1,17 +1,38 @@
-
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30204.135
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleChromeSpeechProxy", "ConsoleChromeSpeechProxy.csproj", "{A85A5555-6D66-4D0B-9CCC-D3B4D7E157CA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSharp_ChromeSpeechProxySvc", "CSharp_ChromeSpeechProxySvc\CSharp_ChromeSpeechProxySvc.csproj", "{E5DE3C44-5778-4C6A-9EB1-D22A5A57DE57}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
 		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A85A5555-6D66-4D0B-9CCC-D3B4D7E157CA}.Debug|Any CPU.ActiveCfg = Debug|x86
 		{A85A5555-6D66-4D0B-9CCC-D3B4D7E157CA}.Debug|x86.ActiveCfg = Debug|x86
 		{A85A5555-6D66-4D0B-9CCC-D3B4D7E157CA}.Debug|x86.Build.0 = Debug|x86
+		{A85A5555-6D66-4D0B-9CCC-D3B4D7E157CA}.Release|Any CPU.ActiveCfg = Release|x86
 		{A85A5555-6D66-4D0B-9CCC-D3B4D7E157CA}.Release|x86.ActiveCfg = Release|x86
 		{A85A5555-6D66-4D0B-9CCC-D3B4D7E157CA}.Release|x86.Build.0 = Release|x86
+		{E5DE3C44-5778-4C6A-9EB1-D22A5A57DE57}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E5DE3C44-5778-4C6A-9EB1-D22A5A57DE57}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E5DE3C44-5778-4C6A-9EB1-D22A5A57DE57}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{E5DE3C44-5778-4C6A-9EB1-D22A5A57DE57}.Debug|x86.Build.0 = Debug|Any CPU
+		{E5DE3C44-5778-4C6A-9EB1-D22A5A57DE57}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E5DE3C44-5778-4C6A-9EB1-D22A5A57DE57}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E5DE3C44-5778-4C6A-9EB1-D22A5A57DE57}.Release|x86.ActiveCfg = Release|Any CPU
+		{E5DE3C44-5778-4C6A-9EB1-D22A5A57DE57}.Release|x86.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {45956625-EB8A-456D-8F40-66E02EF987EF}
 	EndGlobalSection
 EndGlobal
