@@ -12,6 +12,7 @@ namespace ChromeSpeechProxySvc
 {
     public partial class Service1 : ServiceBase
     {
+        private static bool _sWaitForExit = true;
         public Service1()
         {
             InitializeComponent();
@@ -19,10 +20,12 @@ namespace ChromeSpeechProxySvc
 
         protected override void OnStart(string[] args)
         {
+            _sWaitForExit = true;
         }
 
         protected override void OnStop()
         {
+            _sWaitForExit = false;
         }
     }
 }

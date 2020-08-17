@@ -18,9 +18,20 @@ PrivilegesRequired=admin
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
+[code]
+procedure StopService;
+var
+  ResultCode: Integer;
+begin
+
+Exec('cmd.exe', '/c net stop ChromeSpeechProxySvc', 'C:\Windows\System32', SW_SHOWNORMAL, ewWaitUntilTerminated, ResultCode);
+end;
+
+
+
 [Files]
+Source: "bin\Debug\ChromeSpeechProxySvc.exe.config"; DestDir: "{pf32}\TheyLoveGames\ChromeSpeechProxySvc"; CopyMode: alwaysoverwrite; BeforeInstall: StopService();
 Source: "bin\Debug\ChromeSpeechProxySvc.exe"; DestDir: "{pf32}\TheyLoveGames\ChromeSpeechProxySvc"; CopyMode: alwaysoverwrite
-Source: "bin\Debug\ChromeSpeechProxySvc.exe.config"; DestDir: "{pf32}\TheyLoveGames\ChromeSpeechProxySvc"; CopyMode: alwaysoverwrite
 
 [run]
 Filename: {sys}\sc.exe; Parameters: "create ChromeSpeechProxySvc start=auto binPath=""{pf32}\TheyLoveGames\ChromeSpeechProxySvc\ChromeSpeechProxySvc.exe""" ; Flags: runhidden
