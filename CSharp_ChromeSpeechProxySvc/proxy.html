@@ -1,0 +1,1441 @@
+<html>
+<head>
+<title>Console Chrome Speech Proxy</title>
+</head>
+<body>
+The Chrome Proxy is Active!<br/>
+<button>Enable user interaction</button>
+<br/>
+
+</body>
+<script>
+
+function b64EncodeUnicode(str) {
+  return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function(match, p1) {
+    return String.fromCharCode('0x' + p1);
+  }));
+}
+
+// proxy data one message at a time
+var waitForComplete = false;
+var syncData = [];
+function proxyDataImpl(message) {
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', "http://localhost:__PROXY_PORT__/ProxyData?r=" + Date.now() + "&message=" + b64EncodeUnicode(message), true);
+    xhr.onprogress = function () {
+        if (xhr.status != 200) {
+            console.log('Failed to proxy data', xhr.status, message);
+        }
+    };
+    xhr.send(null);
+
+    function processRequest(e) {
+        //console.log("process request:");
+        if (xhr.readyState == 4 && xhr.status == 200) {
+
+            // request has completed, queue next request
+            if (syncData.length > 0) {
+                var nextRequest = syncData.shift();
+                nextRequest();
+            } else {
+                waitForComplete = false;
+            }
+
+            var response = xhr.responseText;
+            if (response == undefined || response == "") {
+                return;
+            }
+            //console.log("Response: " + response);
+            var commands = response.split("\n");
+            for (var i = 0; i < commands.length; ++i) {
+                var js = commands[i];
+                if (js == "") {
+                    continue;
+                }
+                //console.log("Execute: "+js);
+                try {
+                    eval(js);
+                } catch (err) {
+                    console.log("Failed to execute script: " + js);
+                }
+            }
+        }
+    }
+
+    xhr.onreadystatechange = processRequest;
+}
+
+function proxyData(message) {
+
+    if (waitForComplete) {
+        syncData.push(function () {
+            proxyDataImpl(message);
+        });
+    } else {
+        waitForComplete = true;
+        proxyDataImpl(message);
+    }
+}
+
+var WebGLSpeechDetectionPlugin = {
+
+  IsAvailable: function() {
+    var result = !!(window.SpeechRecognition || window.webkitSpeechRecognition);
+    var msg = "SpeechDetectionIsAvailable:"+result;
+	proxyData(msg);
+  },
+  
+  Init: function() {
+    console.log("WebGLSpeechDetectionPlugin: Init");
+    window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (SpeechRecognition == undefined) {
+      return;
+    }
+    if (document.mWebGLSpeechDetectionPluginRecognition != undefined) {
+      return;
+    }
+    document.mWebGLSpeechDetectionPluginResults = [];
+    document.mWebGLSpeechDetectionPluginRecognition = new SpeechRecognition();
+    document.mWebGLSpeechDetectionPluginRecognition.interimResults = true;
+    document.mWebGLSpeechDetectionPluginDetect = function(e) {
+      const results = Array.from(e.results);
+      if (results == undefined) {
+        return;
+      }
+      var jsonData = {};
+      jsonData.results = [];
+      for (var resultIndex = 0; resultIndex < results.length; ++resultIndex) {
+        //console.log(results[resultIndex]);
+        // SpeechRecognitionResult
+        var speechRecognitionResult = {};
+        speechRecognitionResult.isFinal = results[resultIndex].isFinal;
+        speechRecognitionResult.alternatives = []; 
+        for (var setIndex = 0; setIndex < results[resultIndex].length; ++setIndex) {
+          //console.log(results[resultIndex][setIndex]);
+          // SpeechRecognitionAlternative 
+          var speechRecognitionAlternative = {};
+          speechRecognitionAlternative.confidence = results[resultIndex][setIndex].confidence;
+          speechRecognitionAlternative.transcript = results[resultIndex][setIndex].transcript;
+          speechRecognitionResult.alternatives.push(speechRecognitionAlternative);
+        }
+        speechRecognitionResult.length = speechRecognitionResult.alternatives.length;
+        jsonData.results.push(speechRecognitionResult);
+      }
+      //console.log(JSON.stringify(jsonData, undefined, 2));
+      //document.mWebGLSpeechDetectionPluginResults.push(JSON.stringify(jsonData));
+
+      var msg = "SpeechDetectionGetResult:" + encodeURIComponent(JSON.stringify(jsonData)); //push results
+      proxyData(msg);
+
+    };
+    document.mWebGLSpeechDetectionPluginRecognition.addEventListener('result', document.mWebGLSpeechDetectionPluginDetect);
+    document.mWebGLSpeechDetectionPluginRecognition.addEventListener('end', document.mWebGLSpeechDetectionPluginRecognition.start);
+    document.mWebGLSpeechDetectionPluginRecognition.stop();
+    document.mWebGLSpeechDetectionPluginRecognition.start();
+    var msg = "SpeechDetectionInit:";
+    proxyData(msg);
+  },
+
+  Start: function() {
+    if (document.mWebGLSpeechDetectionPluginRecognition == undefined) {
+      return;
+    }
+    document.mWebGLSpeechDetectionPluginRecognition.start();
+  },
+
+  Abort: function() {
+    if (document.mWebGLSpeechDetectionPluginRecognition == undefined) {
+      return;
+    }
+    document.mWebGLSpeechDetectionPluginRecognition.abort();
+  },
+
+  Stop: function() {
+    if (document.mWebGLSpeechDetectionPluginRecognition == undefined) {
+      return;
+    }
+    document.mWebGLSpeechDetectionPluginRecognition.stop();
+  },
+
+  GetNumberOfResults: function() {
+    //console.log("GetNumberOfResults:");
+    if (document.mWebGLSpeechDetectionPluginResults == undefined) {
+      document.mWebGLSpeechDetectionPluginResults = [];
+    }  
+    //console.log("GetNumberOfResults length="+document.mWebGLSpeechDetectionPluginResults.length);
+    var result = document.mWebGLSpeechDetectionPluginResults.length;
+    var msg = "SpeechDetectionGetNumberOfResults:"+result;
+    proxyData(msg);
+  },
+
+  GetResult: function() {
+    if (document.mWebGLSpeechDetectionPluginResults == undefined) {
+      document.mWebGLSpeechDetectionPluginResults = [];
+    }
+    //console.log("GetResult:");
+
+    if (document.mWebGLSpeechDetectionPluginResults.length == 0) {
+      returnStr = "No results available";
+    } else {
+      returnStr = document.mWebGLSpeechDetectionPluginResults[0];
+    }
+
+    document.mWebGLSpeechDetectionPluginResults = document.mWebGLSpeechDetectionPluginResults.splice(1);
+    var msg = "SpeechDetectionGetResult:"+returnStr;
+    proxyData(msg);
+  },
+  
+  // language source comes from: view-source:https://www.google.com/intl/en/chrome/demos/speech.html
+  // careful with encoding, make sure UTF8 is used
+  
+  GetLanguages: function() {
+    //console.log("GetLanguages:");
+    /*
+    var langs =
+    [
+      [
+        "Afrikaans",
+        [
+          "af-ZA"
+        ]
+      ],
+      [
+        "አማርኛ",
+        [
+          "am-ET"
+        ]
+      ],
+      [
+        "Azərbaycanca",
+        [
+          "az-AZ"
+        ]
+      ],
+      [
+        "বাংলা",
+        [
+          "bn-BD",
+          "বাংলাদেশ"
+        ],
+        [
+          "bn-IN",
+          "ভারত"
+        ]
+      ],
+      [
+        "Bahasa Indonesia",
+        [
+          "id-ID"
+        ]
+      ],
+      [
+        "Bahasa Melayu",
+        [
+          "ms-MY"
+        ]
+      ],
+      [
+        "Català",
+        [
+          "ca-ES"
+        ]
+      ],
+      [
+        "Čeština",
+        [
+          "cs-CZ"
+        ]
+      ],
+      [
+        "Dansk",
+        [
+          "da-DK"
+        ]
+      ],
+      [
+        "Deutsch",
+        [
+          "de-DE"
+        ]
+      ],
+      [
+        "English",
+        [
+          "en-AU",
+          "Australia"
+        ],
+        [
+          "en-CA",
+          "Canada"
+        ],
+        [
+          "en-IN",
+          "India"
+        ],
+        [
+          "en-KE",
+          "Kenya"
+        ],
+        [
+          "en-TZ",
+          "Tanzania"
+        ],
+        [
+          "en-GH",
+          "Ghana"
+        ],
+        [
+          "en-NZ",
+          "New Zealand"
+        ],
+        [
+          "en-NG",
+          "Nigeria"
+        ],
+        [
+          "en-ZA",
+          "South Africa"
+        ],
+        [
+          "en-PH",
+          "Philippines"
+        ],
+        [
+          "en-GB",
+          "United Kingdom"
+        ],
+        [
+          "en-US",
+          "United States"
+        ]
+      ],
+      [
+        "Español",
+        [
+          "es-AR",
+          "Argentina"
+        ],
+        [
+          "es-BO",
+          "Bolivia"
+        ],
+        [
+          "es-CL",
+          "Chile"
+        ],
+        [
+          "es-CO",
+          "Colombia"
+        ],
+        [
+          "es-CR",
+          "Costa Rica"
+        ],
+        [
+          "es-EC",
+          "Ecuador"
+        ],
+        [
+          "es-SV",
+          "El Salvador"
+        ],
+        [
+          "es-ES",
+          "España"
+        ],
+        [
+          "es-US",
+          "Estados Unidos"
+        ],
+        [
+          "es-GT",
+          "Guatemala"
+        ],
+        [
+          "es-HN",
+          "Honduras"
+        ],
+        [
+          "es-MX",
+          "México"
+        ],
+        [
+          "es-NI",
+          "Nicaragua"
+        ],
+        [
+          "es-PA",
+          "Panamá"
+        ],
+        [
+          "es-PY",
+          "Paraguay"
+        ],
+        [
+          "es-PE",
+          "Perú"
+        ],
+        [
+          "es-PR",
+          "Puerto Rico"
+        ],
+        [
+          "es-DO",
+          "República Dominicana"
+        ],
+        [
+          "es-UY",
+          "Uruguay"
+        ],
+        [
+          "es-VE",
+          "Venezuela"
+        ]
+      ],
+      [
+        "Euskara",
+        [
+          "eu-ES"
+        ]
+      ],
+      [
+        "Filipino",
+        [
+          "fil-PH"
+        ]
+      ],
+      [
+        "Français",
+        [
+          "fr-FR"
+        ]
+      ],
+      [
+        "Basa Jawa",
+        [
+          "jv-ID"
+        ]
+      ],
+      [
+        "Galego",
+        [
+          "gl-ES"
+        ]
+      ],
+      [
+        "ગુજરાતી",
+        [
+          "gu-IN"
+        ]
+      ],
+      [
+        "Hrvatski",
+        [
+          "hr-HR"
+        ]
+      ],
+      [
+        "IsiZulu",
+        [
+          "zu-ZA"
+        ]
+      ],
+      [
+        "Íslenska",
+        [
+          "is-IS"
+        ]
+      ],
+      [
+        "Italiano",
+        [
+          "it-IT",
+          "Italia"
+        ],
+        [
+          "it-CH",
+          "Svizzera"
+        ]
+      ],
+      [
+        "ಕನ್ನಡ",
+        [
+          "kn-IN"
+        ]
+      ],
+      [
+        "ភាសាខ្មែរ",
+        [
+          "km-KH"
+        ]
+      ],
+      [
+        "Latviešu",
+        [
+          "lv-LV"
+        ]
+      ],
+      [
+        "Lietuvių",
+        [
+          "lt-LT"
+        ]
+      ],
+      [
+        "മലയാളം",
+        [
+          "ml-IN"
+        ]
+      ],
+      [
+        "मराठी",
+        [
+          "mr-IN"
+        ]
+      ],
+      [
+        "Magyar",
+        [
+          "hu-HU"
+        ]
+      ],
+      [
+        "ລາວ",
+        [
+          "lo-LA"
+        ]
+      ],
+      [
+        "Nederlands",
+        [
+          "nl-NL"
+        ]
+      ],
+      [
+        "नेपाली भाषा",
+        [
+          "ne-NP"
+        ]
+      ],
+      [
+        "Norsk bokmål",
+        [
+          "nb-NO"
+        ]
+      ],
+      [
+        "Polski",
+        [
+          "pl-PL"
+        ]
+      ],
+      [
+        "Português",
+        [
+          "pt-BR",
+          "Brasil"
+        ],
+        [
+          "pt-PT",
+          "Portugal"
+        ]
+      ],
+      [
+        "Română",
+        [
+          "ro-RO"
+        ]
+      ],
+      [
+        "සිංහල",
+        [
+          "si-LK"
+        ]
+      ],
+      [
+        "Slovenščina",
+        [
+          "sl-SI"
+        ]
+      ],
+      [
+        "Basa Sunda",
+        [
+          "su-ID"
+        ]
+      ],
+      [
+        "Slovenčina",
+        [
+          "sk-SK"
+        ]
+      ],
+      [
+        "Suomi",
+        [
+          "fi-FI"
+        ]
+      ],
+      [
+        "Svenska",
+        [
+          "sv-SE"
+        ]
+      ],
+      [
+        "Kiswahili",
+        [
+          "sw-TZ",
+          "Tanzania"
+        ],
+        [
+          "sw-KE",
+          "Kenya"
+        ]
+      ],
+      [
+        "ქართული",
+        [
+          "ka-GE"
+        ]
+      ],
+      [
+        "Հայերեն",
+        [
+          "hy-AM"
+        ]
+      ],
+      [
+        "தமிழ்",
+        [
+          "ta-IN",
+          "இந்தியா"
+        ],
+        [
+          "ta-SG",
+          "சிங்கப்பூர்"
+        ],
+        [
+          "ta-LK",
+          "இலங்கை"
+        ],
+        [
+          "ta-MY",
+          "மலேசியா"
+        ]
+      ],
+      [
+        "తెలుగు",
+        [
+          "te-IN"
+        ]
+      ],
+      [
+        "Tiếng Việt",
+        [
+          "vi-VN"
+        ]
+      ],
+      [
+        "Türkçe",
+        [
+          "tr-TR"
+        ]
+      ],
+      [
+        "اُردُو",
+        [
+          "ur-PK",
+          "پاکستان"
+        ],
+        [
+          "ur-IN",
+          "بھارت"
+        ]
+      ],
+      [
+        "Ελληνικά",
+        [
+          "el-GR"
+        ]
+      ],
+      [
+        "български",
+        [
+          "bg-BG"
+        ]
+      ],
+      [
+        "Pусский",
+        [
+          "ru-RU"
+        ]
+      ],
+      [
+        "Српски",
+        [
+          "sr-RS"
+        ]
+      ],
+      [
+        "Українська",
+        [
+          "uk-UA"
+        ]
+      ],
+      [
+        "한국어",
+        [
+          "ko-KR"
+        ]
+      ],
+      [
+        "中文",
+        [
+          "cmn-Hans-CN",
+          "普通话 (中国大陆)"
+        ],
+        [
+          "cmn-Hans-HK",
+          "普通话 (香港)"
+        ],
+        [
+          "cmn-Hant-TW",
+          "中文 (台灣)"
+        ],
+        [
+          "yue-Hant-HK",
+          "粵語 (香港)"
+        ]
+      ],
+      [
+        "日本語",
+        [
+          "ja-JP"
+        ]
+      ],
+      [
+        "हिन्दी",
+        [
+          "hi-IN"
+        ]
+      ],
+      [
+        "ภาษาไทย",
+        [
+          "th-TH"
+        ]
+      ]
+    ];
+    console.log('langs', langs);
+    */
+
+      document.mWebGLSpeechDetectionLanguages =
+      {
+          "languages": [{
+              "name": "Arabic",
+              "display": "Arabic",
+              "dialects": [{
+                  "name": "ar-IL",
+                  "display": "Arabic (Israel)"
+              }, {
+                  "name": "ar-JO",
+                  "display": "Arabic (Jordan)"
+              }, {
+                  "name": "ar-AE",
+                  "display": "Arabic (United Arab Emirates)"
+              }, {
+                  "name": "ar-BH",
+                  "display": "Arabic (Bahrain)"
+              }, {
+                  "name": "ar-DZ",
+                  "display": "Arabic (Algeria)"
+              }, {
+                  "name": "ar-SA",
+                  "display": "Arabic (Saudi Arabia)"
+              }, {
+                  "name": "ar-IQ",
+                  "display": "Arabic (Iraq)"
+              }, {
+                  "name": "ar-KW",
+                  "display": "Arabic (Kuwait)"
+              }, {
+                  "name": "ar-MA",
+                  "display": "Arabic (Morocco)"
+              }, {
+                  "name": "ar-TN",
+                  "display": "Arabic (Tunisia)"
+              }, {
+                  "name": "ar-OM",
+                  "display": "Arabic (Oman)"
+              }, {
+                  "name": "ar-PS",
+                  "display": "Arabic (State of Palestine)"
+              }, {
+                  "name": "ar-QA",
+                  "display": "Arabic (Qatar)"
+              }, {
+                  "name": "ar-LB",
+                  "display": "Arabic (Lebanon)"
+              }, {
+                  "name": "ar-EG",
+                  "display": "Arabic (Egypt)"
+              }]
+          }, {
+              "name": "Afrikaans",
+              "display": "Afrikaans (South Africa)",
+              "dialects": [{
+                  "name": "af-ZA",
+                  "display": "Afrikaans (South Africa)"
+              }]
+          }, {
+              "name": "Euskara",
+              "display": "Basque (Spain)",
+              "dialects": [{
+                  "name": "eu-ES",
+                  "display": "Basque (Spain)"
+              }]
+          }, {
+              "name": "?????????",
+			  "display": "Bulgarian (Bulgaria)",
+              "display": "Bulgarian",
+              "dialects": [{
+                  "name": "bg-BG",
+                  "display": "Bulgarian (Bulgaria)"
+              }]
+          }, {
+              "name": "Català",
+			  "display": "Catalan (Spain)",
+              "dialects": [{
+                  "name": "ca-ES",
+                  "display": "Catalan (Spain)"
+              }]
+          }, {
+              "name": "Ceština",
+			  "display": "Czech (Czech Republic)",
+              "dialects": [{
+                  "name": "cs-CZ",
+                  "display": "Czech (Czech Republic)"
+              }]
+          }, {
+              "name": "??",
+              "display": "Chinese",
+              "dialects": [{
+                  "name": "cmn-Hans-CN",
+                  "description": "??? (????)",
+                  "display": "Mandarin (Simplified, China)"
+              }, {
+                  "name": "cmn-Hans-HK",
+                  "description": "??? (??)",
+                  "display": "Mandarin (Simplified, Hong Kong)"
+              }, {
+                  "name": "cmn-Hant-TW",
+                  "description": "?? (??)",
+                  "display": "Mandarin (Traditional, Taiwan)"
+              }, {
+                  "name": "yue-Hant-HK",
+                  "description": "?? (??)",
+                  "display": "Cantonese (Traditional, Hong Kong)"
+              }]
+          }, {
+              "name": "Hrvatski",
+              "display": "Croatian (Croatia)",
+              "dialects": [{
+                  "name": "hr-HR",
+                  "display": "Croatian (Croatia)"
+              }]
+          }, {
+              "name": "Dansk",
+			  "display": "Danish (Denmark)",
+              "dialects": [{
+                  "name": "da-DK",
+                  "display": "Danish (Denmark)"
+              }]
+          }, {
+              "name": "Nederlands",
+              "display": "Dutch (Netherlands)",
+              "dialects": [{
+                  "name": "nl-NL",
+                  "display": "Dutch (Netherlands)"
+              }]
+          }, {
+              "name": "English",
+              "dialects": [{
+                  "name": "en-AU",
+                  "description": "Australia"
+              }, {
+                  "name": "en-CA",
+                  "description": "Canada"
+              }, {
+                  "name": "en-IN",
+                  "description": "India"
+              }, {
+                  "name": "en-NZ",
+                  "description": "New Zealand"
+              }, {
+                  "name": "en-ZA",
+                  "description": "South Africa"
+              }, {
+                  "name": "en-GB",
+                  "description": "United Kingdom"
+              }, {
+                  "name": "en-US",
+                  "description": "United States"
+              }]
+          }, {
+              "name": "Filipino",
+			  "display": "Filipino (Philippines)",
+              "dialects": [{
+                  "name": "fil-PH",
+                  "display": "Filipino (Philippines)"
+              }]
+          }, {
+              "name": "Suomi",
+              "display": "Finnish (Finland)",
+              "dialects": [{
+                  "name": "fi-FI",
+                  "display": "Finnish (Finland)"
+              }]
+          }, {
+              "name": "Français",
+			  "display": "French (France)",
+              "dialects": [{
+                  "name": "fr-FR",
+                  "display": "French (France)"
+              }]
+          }, {
+              "name": "Galego",
+			  "display": "Galician (Spain)",
+              "dialects": [{
+                  "name": "gl-ES",
+                  "display": "Galician (Spain)"
+              }]
+          }, {
+              "name": "Deutsch",
+              "display": "German (Germany)",
+              "dialects": [{
+                  "name": "de-DE",
+                  "display": "German (Germany)"
+              }]
+          }, {
+              "name": "????????",
+			  "display": "Greek (Greece)",
+              "display": "Greek",
+              "dialects": [{
+                  "name": "el-GR",
+                  "display": "Greek (Greece)"
+              }]
+          }, {
+              "name": "??????",
+              "display": "Hindi",
+              "dialects": [{
+                  "name": "hi-IN",
+                  "display": "Hindi (India)"
+              }]
+          }, {
+              "name": "Magyar",
+              "display": "Hungarian (Hungary)",
+              "dialects": [{
+                  "name": "hu-HU",
+                  "display": "Hungarian (Hungary)"
+              }]
+          }, {
+              "name": "Íslenska",
+			  "display": "Icelandic (Iceland)",
+              "dialects": [{
+                  "name": "is-IS",
+                  "display": "Icelandic (Iceland)"
+              }]
+          }, {
+              "name": "Bahasa Indonesia",
+              "display": "Indonesian (Indonesia)",
+              "dialects": [{
+                  "name": "id-ID",
+                  "display": "Indonesian (Indonesia)"
+              }]
+          }, {
+              "name": "Italiano",
+			  "display": "Italian (Italy)",
+              "dialects": [{
+                  "name": "it-IT",
+                  "description": "Italia",
+                  "display": "Italian (Italy)"
+              }, {
+                  "name": "it-CH",
+                  "description": "Svizzera"
+              }]
+          }, {
+              "name": "???",
+              "display": "Japanese",
+              "dialects": [{
+                  "name": "ja-JP",
+                  "display": "Japanese (Japan)"
+              }]
+          }, {
+              "name": "???",
+              "display": "Korean",
+              "dialects": [{
+                  "name": "ko-KR",
+                  "display": "Korean (South Korea)"
+              }]
+          }, {
+              "name": "Lietuviu",
+			  "display": "Lithuanian (Lithuania)",
+              "dialects": [{
+                  "name": "lt-LT",
+                  "display": "Lithuanian (Lithuania)"
+              }]
+          }, {
+              "name": "Bahasa Melayu",
+              "display": "Malay (Malaysia)",
+              "dialects": [{
+                  "name": "ms-MY",
+                  "display": "Malay (Malaysia)"
+              }]
+          }, {
+              "name": "Norsk bokmål",
+			  "display": "Norwegian (Norway)",
+              "dialects": [{
+                  "name": "nb-NO",
+                  "display": "Norwegian (Norway)"
+              }]
+          }, {
+              "name": "Polski",
+			  "display": "Polish (Poland)",
+              "dialects": [{
+                  "name": "pl-PL",
+                  "display": "Polish (Poland)"
+              }]
+          }, {
+              "name": "Português",
+			  "display": "Portuguese",
+              "dialects": [{
+                  "name": "pt-BR",
+                  "description": "Brasil",
+                  "display": "Portuguese (Brazil)"
+              }, {
+                  "name": "pt-PT",
+                  "description": "Portugal",
+                  "display": "Portuguese (Portugal)"
+              }]
+          }, {
+              "name": "Româna",
+			  "display": "Romanian (Romania)",
+              "dialects": [{
+                  "name": "ro-RO",
+                  "display": "Romanian (Romania)"
+              }]
+          }, {
+              "name": "P??????",
+			  "display": "Russian (Russia)",
+              "display": "Russian",
+              "dialects": [{
+                  "name": "ru-RU",
+                  "display": "Russian (Russia)"
+              }]
+          }, {
+              "name": "Српски",
+              "display": "Serbian",
+              "dialects": [{
+                  "name": "sr-RS",
+                  "display": "Serbian (Serbia)"
+              }]
+          }, {
+              "name": "Slovenčina",
+              "display": "Slovak (Slovakia)",
+              "dialects": [{
+                  "name": "sk-SK",
+                  "display": "Slovak (Slovakia)"
+              }]
+          }, {
+              "name": "Slovenšcina",
+			  "display": "Slovenian (Slovenia)",
+              "dialects": [{
+                  "name": "sl-SI",
+                  "display": "Slovenian (Slovenia)"
+              }]
+          }, {
+              "name": "Español",
+              "display": "Spanish",
+              "dialects": [{
+                  "name": "es-AR",
+                  "description": "Argentina",
+                  "display": "Spanish (Argentina)"
+              }, {
+                  "name": "es-BO",
+                  "description": "Bolivia",
+                  "display": "Spanish (Bolivia)"
+              }, {
+                  "name": "es-CL",
+                  "description": "Chile",
+                  "display": "Spanish (Chile)"
+              }, {
+                  "name": "es-CO",
+                  "description": "Colombia",
+                  "display": "Spanish (Colombia)"
+              }, {
+                  "name": "es-CR",
+                  "description": "Costa Rica",
+                  "display": "Spanish (Costa Rica)"
+              }, {
+                  "name": "es-EC",
+                  "description": "Ecuador",
+                  "display": "Spanish (Ecuador)"
+              }, {
+                  "name": "es-SV",
+                  "description": "El Salvador",
+                  "display": "Spanish (El Salvador)"
+              }, {
+                  "name": "es-ES",
+                  "description": "España",
+                  "display": "Spanish (Spain)"
+              }, {
+                  "name": "es-US",
+                  "description": "Estados Unidos",
+                  "display": "Spanish (United States)"
+              }, {
+                  "name": "es-GT",
+                  "description": "Guatemala",
+                  "display": "Spanish (Guatemala)"
+              }, {
+                  "name": "es-HN",
+                  "description": "Honduras",
+                  "display": "Spanish (Honduras)"
+              }, {
+                  "name": "es-MX",
+                  "description": "México",
+                  "display": "Spanish (Mexico)"
+              }, {
+                  "name": "es-NI",
+                  "description": "Nicaragua",
+                  "display": "Spanish (Nicaragua)"
+              }, {
+                  "name": "es-PA",
+                  "description": "Panamá",
+                  "display": "Spanish (Panama)"
+              }, {
+                  "name": "es-PY",
+                  "description": "Paraguay",
+                  "display": "Spanish (Paraguay)"
+              }, {
+                  "name": "es-PE",
+                  "description": "Perú",
+                  "display": "Spanish (Peru)"
+              }, {
+                  "name": "es-PR",
+                  "description": "Puerto Rico",
+                  "display": "Spanish (Puerto Rico)"
+              }, {
+                  "name": "es-DO",
+                  "description": "República Dominicana",
+                  "display": "Spanish (Dominican Republic)"
+              }, {
+                  "name": "es-UY",
+                  "description": "Uruguay",
+                  "display": "Spanish (Uruguay)"
+              }, {
+                  "name": "es-VE",
+                  "description": "Venezuela",
+                  "display": "Spanish (Venezuela)"
+              }]
+          }, {
+              "name": "Svenska",
+			  "display": "Swedish (Sweden)",
+              "dialects": [{
+                  "name": "sv-SE",
+                  "display": "Swedish (Sweden)"
+              }]
+          }, {
+              "name": "ภาษาไทย",
+              "display": "Thai",
+              "dialects": [{
+                  "name": "th-TH",
+                  "display": "Thai (Thailand)"
+              }]
+          }, {
+              "name": "Türkçe",
+			  "display": "Turkish (Turkey)",
+              "dialects": [{
+                  "name": "tr-TR",
+                  "display": "Turkish (Turkey)"
+              }]
+          }, {
+              "name": "??????????",
+              "display": "Ukrainian",
+              "dialects": [{
+                  "name": "uk-UA",
+                  "display": "Ukrainian (Ukraine)"
+              }]
+          }, {
+              "name": "Ti?ng Vi?t",
+              "display": "Vietnamese (Vietnam)",
+              "dialects": [{
+                  "name": "vi-VN",
+                  "display": "Vietnamese (Vietnam)"
+              }]
+          }, {
+              "name": "IsiZulu",
+              "display": "Zulu (South Africa)",
+              "dialects": [{
+                  "name": "zu-ZA",
+                  "display": "Zulu (South Africa)"
+              }]
+          }]
+      };
+
+    //console.log(JSON.stringify(document.mWebGLSpeechDetectionLanguages, undefined, 2));
+      var returnStr = encodeURIComponent(JSON.stringify(document.mWebGLSpeechDetectionLanguages));
+
+      var proxyIndex = 0;
+
+      var chunkSize = 1024;
+      if (returnStr.length > chunkSize) {
+          var chunk = function (input, size) {
+              var parts = [];
+              for (var i = 0; i < input.length; i += size) {
+                  var part;
+                  if ((i + size) < input.length) {
+                      part = input.substr(i, size);
+                  } else {
+                      part = input.substr(i, input.length % size);
+                  }
+                  parts.push(part);
+              }
+              return parts;
+          };
+          var chunks = chunk(returnStr, chunkSize);
+          for (var i = 0; i < chunks.length; ++i) {
+              var msg;
+              if (i == 0) {
+                  msg = "SpeechDetectionGetLanguagesChunkFirst:" + chunks[i];
+              } else if ((i + 1) == chunks.length) {
+                  msg = "SpeechDetectionGetLanguagesChunkLast:" + chunks[i];
+              } else {
+                  msg = "SpeechDetectionGetLanguagesChunk:" + chunks[i];
+              }
+              //console.log('GetLanguages', 'index', i, msg, chunks[i]);
+              proxyData(msg);
+          }
+      } else {
+          var msg = "SpeechDetectionGetLanguages:" + returnStr;
+          proxyData(msg);
+      }
+  },
+  
+  SetLanguage: function(dialect) {
+    //console.log("SetLanguage: "+dialect);
+
+    if (document.mWebGLSpeechDetectionPluginRecognition == undefined) {
+      return;
+    }
+
+    document.mWebGLSpeechDetectionPluginRecognition.lang = dialect;
+  }
+};
+
+WebGLSpeechDetectionPlugin.Init();
+
+
+
+var WebGLSpeechSynthesisPlugin = {
+    IsAvailable: function () {
+        var result;
+        if (typeof speechSynthesis === "undefined") {
+            result = false;
+        } else {
+            result = true;
+        }
+        var msg = "SpeechSynthesisIsAvailable:" + result;
+        proxyData(msg);
+    },
+    GetVoices: function () {
+        var returnStr = "";
+        if (typeof speechSynthesis === "undefined") {
+            // not supported
+        } else {
+            var voices = document.mWebGLSpeechSynthesisPluginVoices;
+            if (voices != undefined) {
+                var jsonData = {};
+                jsonData.voices = [];
+                for (var voiceIndex = 0; voiceIndex < voices.length; ++voiceIndex) {
+                    var voice = voices[voiceIndex];
+                    var speechSynthesisVoice = {};
+                    speechSynthesisVoice._default = voice.default; //default is reserved word
+                    speechSynthesisVoice.lang = voice.lang;
+                    speechSynthesisVoice.localService = voice.localService;
+                    speechSynthesisVoice.name = voice.name;
+                    speechSynthesisVoice.voiceURI = voice.voiceURI;
+                    jsonData.voices.push(speechSynthesisVoice);
+                }
+                //console.log(JSON.stringify(jsonData, undefined, 2));
+                returnStr = encodeURIComponent(JSON.stringify(jsonData));
+            }
+        }
+        var msg = "SpeechSynthesisGetVoices:" + returnStr;
+        proxyData(msg);
+    },
+    Init: function () {
+        //console.log("WebGLSpeechSynthesisPlugin: Init");
+        if (typeof speechSynthesis === "undefined") {
+            return;
+        }
+        if (document.mWebGLSpeechSynthesisPluginVoices != undefined) {
+            return; //already initialized
+        }
+        var initVoices = function () {
+            var voices = speechSynthesis.getVoices();
+            if (voices.length == 0) {
+                setTimeout(function () { initVoices() }, 10);
+                return;
+            }
+            document.mWebGLSpeechSynthesisPluginVoices = voices;
+            //console.log(document.mWebGLSpeechSynthesisPluginVoices);
+
+            var msg = "SpeechSynthesisInit:";
+            proxyData(msg);
+        }
+        initVoices();
+
+        setInterval(function () {
+            proxyData("SpeechSynthesisIdle:");
+        }, 1000);
+    },
+    CreateSpeechSynthesisUtterance: function () {
+        if (document.mWebGLSpeechSynthesisPluginUtterances == undefined) {
+            document.mWebGLSpeechSynthesisPluginUtterances = [];
+        }
+        var index;
+        if (typeof speechSynthesis === "undefined") {
+            index = -1;
+        } else {
+            index = document.mWebGLSpeechSynthesisPluginUtterances.length;
+            var instance = new SpeechSynthesisUtterance();
+            document.mWebGLSpeechSynthesisPluginUtterances.push(instance);
+        }
+        var msg = "SpeechSynthesisCreateSpeechSynthesisUtterance:" + index;
+        proxyData(msg);
+    },
+    SetUtterancePitch: function (index, pitch) {
+        if (typeof speechSynthesis === "undefined") {
+            return;
+        }
+        if (document.mWebGLSpeechSynthesisPluginUtterances == undefined) {
+            return;
+        }
+        if (document.mWebGLSpeechSynthesisPluginUtterances.length <= index) {
+            return;
+        }
+        var instance = document.mWebGLSpeechSynthesisPluginUtterances[index];
+        if (instance == undefined) {
+            return;
+        }
+        var strPitch = pitch;
+        instance.pitch = parseFloat(strPitch);
+    },
+    SetUtteranceRate: function (index, rate) {
+        if (typeof speechSynthesis === "undefined") {
+            return;
+        }
+        if (document.mWebGLSpeechSynthesisPluginUtterances == undefined) {
+            return;
+        }
+        if (document.mWebGLSpeechSynthesisPluginUtterances.length <= index) {
+            return;
+        }
+        var instance = document.mWebGLSpeechSynthesisPluginUtterances[index];
+        if (instance == undefined) {
+            return;
+        }
+        var strRate = rate;
+        instance.rate = parseFloat(strRate);
+    },
+    SetUtteranceText: function (index, text) {
+        if (document.mWebGLSpeechSynthesisPluginUtterances == undefined) {
+            return;
+        }
+        if (document.mWebGLSpeechSynthesisPluginUtterances.length <= index) {
+            return;
+        }
+        var instance = document.mWebGLSpeechSynthesisPluginUtterances[index];
+        if (instance == undefined) {
+            return;
+        }
+        instance.text = text;
+    },
+    SetUtteranceVoice: function (index, voiceURI) {
+        if (document.mWebGLSpeechSynthesisPluginUtterances == undefined) {
+            return;
+        }
+        if (document.mWebGLSpeechSynthesisPluginUtterances.length <= index) {
+            return;
+        }
+        var instance = document.mWebGLSpeechSynthesisPluginUtterances[index];
+        if (instance == undefined) {
+            return;
+        }
+        var voices = document.mWebGLSpeechSynthesisPluginVoices;
+        if (voices == undefined) {
+            return;
+        }
+        var strVoice = voiceURI;
+        //console.log("SetUtteranceVoice: " + strVoice);
+        for (var voiceIndex = 0; voiceIndex < voices.length; ++voiceIndex) {
+            var voice = voices[voiceIndex];
+            if (voice == undefined) {
+                continue;
+            }
+            if (voice.voiceURI == strVoice) {
+                instance.voice = voice;
+                return;
+            }
+        }
+    },
+    SetUtteranceVolume: function (index, volume) {
+        if (document.mWebGLSpeechSynthesisPluginUtterances == undefined) {
+            return;
+        }
+        if (document.mWebGLSpeechSynthesisPluginUtterances.length <= index) {
+            return;
+        }
+        var instance = document.mWebGLSpeechSynthesisPluginUtterances[index];
+        if (instance == undefined) {
+            return;
+        }
+        instance.volume = volume;
+    },
+    Speak: function (index) {
+        if (typeof speechSynthesis === "undefined") {
+            return;
+        }
+        if (document.mWebGLSpeechSynthesisPluginUtterances == undefined) {
+            return;
+        }
+        if (document.mWebGLSpeechSynthesisPluginUtterances.length <= index) {
+            return;
+        }
+        var instance = document.mWebGLSpeechSynthesisPluginUtterances[index];
+        if (instance == undefined) {
+            return;
+        }
+        instance.onend = function (event) {
+            var jsonData = {};
+            jsonData.index = index;
+            jsonData.elapsedTime = event.elapsedTime;
+            jsonData.type = event.type;
+            var msg = "SpeechSynthesisOnEnd:" + encodeURIComponent(JSON.stringify(jsonData));
+            proxyData(msg);
+        }
+        speechSynthesis.speak(instance);
+    },
+    Cancel: function () {
+        if (typeof speechSynthesis === "undefined") {
+            return;
+        }
+        speechSynthesis.cancel();
+    }
+};
+
+WebGLSpeechSynthesisPlugin.Init();
+
+</script>
+</html>
