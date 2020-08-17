@@ -1,31 +1,41 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Diagnostics;
-using System.Linq;
+﻿using ConsoleChromeSpeechProxy;
+using System;
 using System.ServiceProcess;
-using System.Text;
-using System.Threading.Tasks;
+using System.Threading;
 
 namespace ChromeSpeechProxySvc
 {
     public partial class Service1 : ServiceBase
     {
-        private static bool _sWaitForExit = true;
+        private App _mApp = null;
+
         public Service1()
         {
             InitializeComponent();
         }
 
+        private void AppSetup()
+        {
+            Console.WriteLine("App: {0}", AppDomain.CurrentDomain.FriendlyName);
+            Console.WriteLine("OSVersion: {0}", Environment.OSVersion.VersionString);
+
+            Server.SetAppName(AppDomain.CurrentDomain.FriendlyName);
+
+            _mApp = new App();
+        }
+
+
         protected override void OnStart(string[] args)
         {
-            _sWaitForExit = true;
+            ThreadStart ts = new ThreadStart(AppSetup);
+            Thread thread = new Thread(ts);
+            thread.Start();
         }
 
         protected override void OnStop()
         {
-            _sWaitForExit = false;
+            _mApp.StopProxy();
+            System.Environment.Exit(0);
         }
     }
 }

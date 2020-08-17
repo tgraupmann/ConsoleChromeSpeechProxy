@@ -76,5 +76,10 @@ namespace ConsoleChromeSpeechProxy
         {
             //Console.WriteLine("UnityConnected: {0}", text);
         }
+
+        public void StopProxy()
+        {
+            _mServer.StopProxy();
+        }
     }
 }

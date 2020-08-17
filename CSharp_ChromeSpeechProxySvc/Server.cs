@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Text;
@@ -515,16 +516,21 @@ namespace ConsoleChromeSpeechProxy
 
             try
             {
+                Debugger.Break();
+
                 _mWaitForExit = true;
 
                 int port = GetProxyPort();
 
+                // requires run as admin from the command-line:
+                // netsh http add urlacl url="http://localhost:5000/" user="Local Service"
+                // so admin is not required
                 string uri = string.Format("http://localhost:{0}", port);
                 Console.WriteLine("Listening: {0}", uri);
 
                 _mHttpListener = new HttpListener();
 
-                _mHttpListener.Prefixes.Add(string.Format("http://*:{0}/", port));
+                _mHttpListener.Prefixes.Add(string.Format("http://localhost:{0}/", port));
                 _mHttpListener.Start();
 
                 ThreadStart ts = new ThreadStart(WorkerThread);
@@ -570,6 +576,12 @@ namespace ConsoleChromeSpeechProxy
             }
 
             AppendStatus("Proxy Stopped!");
+
+            if (null != _mThread)
+            {
+                _mThread.Abort();
+                _mThread = null;
+            }
         }
 
         private void WorkerThread()
@@ -599,8 +611,9 @@ namespace ConsoleChromeSpeechProxy
                             byte[] buffer = null;
                             try
                             {
-                                #if USE_COMPRESSION
-                                using (FileStream fs = File.Open("proxy.zip", FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+#if USE_COMPRESSION
+                                string path = string.Format("{0}proxy.zip", AppDomain.CurrentDomain.BaseDirectory);
+                                using (FileStream fs = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read))
                                 {
                                     using (var inStream = new ZipInputStream(fs))
                                     {
@@ -614,7 +627,8 @@ namespace ConsoleChromeSpeechProxy
                                     }
                                 }
 #else
-                                using (FileStream fs = File.Open("proxy.html", FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                                string path = string.Format("{0}proxy.html", AppDomain.CurrentDomain.BaseDirectory);
+                                using (FileStream fs = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read))
                                 {
                                     using (StreamReader sr = new StreamReader(fs, Encoding.UTF8))
                                     {
@@ -629,9 +643,9 @@ namespace ConsoleChromeSpeechProxy
                                 string content = Encoding.UTF8.GetString(buffer);
                                 response = content.Replace("__PROXY_PORT__", GetProxyPort().ToString());
                             }
-                            catch (Exception)
+                            catch (Exception ex)
                             {
-
+                                Console.Error.WriteLine("Failed to read proxy file! Exception={0}", ex);
                             }
                         }
 
