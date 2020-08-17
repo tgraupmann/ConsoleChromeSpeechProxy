@@ -207,8 +207,7 @@ namespace ConsoleChromeSpeechProxy
 
         private static string GetAppDataFolder()
         {
-            string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), KEY_CHROME_SPEECH_PROXY);
-            return path;
+            return @"C:\Program Files (x86)\TheyLoveGames\ChromeSpeechProxySvc";
         }
 
         private string GetPendingJavaScript()
@@ -516,8 +515,6 @@ namespace ConsoleChromeSpeechProxy
 
             try
             {
-                Debugger.Break();
-
                 _mWaitForExit = true;
 
                 int port = GetProxyPort();

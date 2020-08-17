@@ -1,6 +1,6 @@
 [Setup]
 AppName=Chrome Speech Proxy Service
-AppVerName=Chrome Speech Proxy Service 1.0
+AppVerName=Chrome Speech Proxy Service 1.1
 AppPublisher=THEY LOVE GAMES
 AppPublisherURL=https://theylovegames.com
 AppSupportURL=https://theylovegames.com
@@ -35,14 +35,18 @@ end;
 ;Source: "bin\Debug\Newtonsoft.Json.dll"; DestDir: "{pf32}\TheyLoveGames\ChromeSpeechProxySvc"; CopyMode: alwaysoverwrite
 ;Source: "bin\Debug\proxy.html"; DestDir: "{pf32}\TheyLoveGames\ChromeSpeechProxySvc"; CopyMode: alwaysoverwrite
 ;Source: "bin\Debug\proxy.zip"; DestDir: "{pf32}\TheyLoveGames\ChromeSpeechProxySvc"; CopyMode: alwaysoverwrite
+;Source: "bin\Debug\app.config"; DestDir: "{pf32}\TheyLoveGames\ChromeSpeechProxySvc"; CopyMode: alwaysoverwrite
 Source: "bin\Release\ChromeSpeechProxySvc.exe.config"; DestDir: "{pf32}\TheyLoveGames\ChromeSpeechProxySvc"; CopyMode: alwaysoverwrite; BeforeInstall: StopService();
 Source: "bin\Release\ChromeSpeechProxySvc.exe"; DestDir: "{pf32}\TheyLoveGames\ChromeSpeechProxySvc"; CopyMode: alwaysoverwrite
 Source: "bin\Release\Newtonsoft.Json.dll"; DestDir: "{pf32}\TheyLoveGames\ChromeSpeechProxySvc"; CopyMode: alwaysoverwrite
 Source: "bin\Release\Newtonsoft.Json.dll"; DestDir: "{pf32}\TheyLoveGames\ChromeSpeechProxySvc"; CopyMode: alwaysoverwrite
 Source: "bin\Release\proxy.html"; DestDir: "{pf32}\TheyLoveGames\ChromeSpeechProxySvc"; CopyMode: alwaysoverwrite
 Source: "bin\Release\proxy.zip"; DestDir: "{pf32}\TheyLoveGames\ChromeSpeechProxySvc"; CopyMode: alwaysoverwrite
+Source: "bin\Release\app.config"; DestDir: "{pf32}\TheyLoveGames\ChromeSpeechProxySvc"; CopyMode: alwaysoverwrite
 
 [run]
+Filename: {sys}\sc.exe; Parameters: "stop ChromeSpeechProxySvc" ; Flags: runhidden
+Filename: {sys}\sc.exe; Parameters: "delete ChromeSpeechProxySvc" ; Flags: runhidden
 Filename: {sys}\sc.exe; Parameters: "create ChromeSpeechProxySvc start=auto binPath=""{pf32}\TheyLoveGames\ChromeSpeechProxySvc\ChromeSpeechProxySvc.exe""" ; Flags: runhidden
 Filename: {sys}\sc.exe; Parameters: "start ChromeSpeechProxySvc" ; Flags: runhidden
 
