@@ -35,7 +35,7 @@ namespace ConsoleChromeSpeechProxy
             _mApp = new App();
             while (_mApp.IsRunning())
             {
-                Thread.Sleep(0);
+                Thread.Sleep(1);
             }
         }
     }
