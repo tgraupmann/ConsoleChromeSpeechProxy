@@ -1,6 +1,6 @@
 [Setup]
 AppName=Chrome Speech Proxy Service
-AppVerName=Chrome Speech Proxy Service 1.1
+AppVerName=Chrome Speech Proxy Service 1.3
 AppPublisher=THEY LOVE GAMES
 AppPublisherURL=https://theylovegames.com
 AppSupportURL=https://theylovegames.com

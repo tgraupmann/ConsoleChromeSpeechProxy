@@ -7,7 +7,6 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Text;
@@ -19,7 +18,8 @@ namespace ConsoleChromeSpeechProxy
     class Server
     {
         const string APP_CMD = @"C:\Windows\System32\cmd.exe";
-        const string APP_CHROME_WIN = @"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe";
+        const string APP_CHROME_WIN_32 = @"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe";
+        const string APP_CHROME_WIN_64 = @"C:\Program Files\Google\Chrome\Application\chrome.exe";
 
         const string APP_BASH_MAC = "/bin/bash";
         const string APP_CHROME_MAC = @"/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome";
@@ -396,10 +396,24 @@ namespace ConsoleChromeSpeechProxy
             }
             else // Windows
             {
-				string args = string.Format("/c start \"\" \"{0}\" {1}", APP_CHROME_WIN, uri);
-				process.StartInfo = new System.Diagnostics.ProcessStartInfo(APP_CMD,
-					args);
-				process.Start();
+                if (File.Exists(APP_CHROME_WIN_64))
+                {
+                    string args = string.Format("/c start \"\" \"{0}\" {1}", APP_CHROME_WIN_64, uri);
+                    process.StartInfo = new System.Diagnostics.ProcessStartInfo(APP_CMD,
+                        args);
+                    process.Start();
+                }
+                else if (File.Exists(APP_CHROME_WIN_32))
+                {
+                    string args = string.Format("/c start \"\" \"{0}\" {1}", APP_CHROME_WIN_32, uri);
+                    process.StartInfo = new System.Diagnostics.ProcessStartInfo(APP_CMD,
+                        args);
+                    process.Start();
+                }
+                else
+                {
+                    Console.Error.WriteLine("Chrome could not be found! Please install!");
+                }
             }
 		}
 
