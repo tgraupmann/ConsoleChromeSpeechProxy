@@ -36,13 +36,13 @@ end;
 ;Source: "bin\Debug\proxy.html"; DestDir: "{pf32}\TheyLoveGames\ChromeSpeechProxySvc"; CopyMode: alwaysoverwrite
 ;Source: "bin\Debug\proxy.zip"; DestDir: "{pf32}\TheyLoveGames\ChromeSpeechProxySvc"; CopyMode: alwaysoverwrite
 ;Source: "bin\Debug\app.config"; DestDir: "{pf32}\TheyLoveGames\ChromeSpeechProxySvc"; CopyMode: alwaysoverwrite
-Source: "bin\Release\ChromeSpeechProxySvc.exe.config"; DestDir: "{pf32}\TheyLoveGames\ChromeSpeechProxySvc"; CopyMode: alwaysoverwrite; BeforeInstall: StopService();
-Source: "bin\Release\ChromeSpeechProxySvc.exe"; DestDir: "{pf32}\TheyLoveGames\ChromeSpeechProxySvc"; CopyMode: alwaysoverwrite
-Source: "bin\Release\Newtonsoft.Json.dll"; DestDir: "{pf32}\TheyLoveGames\ChromeSpeechProxySvc"; CopyMode: alwaysoverwrite
-Source: "bin\Release\Newtonsoft.Json.dll"; DestDir: "{pf32}\TheyLoveGames\ChromeSpeechProxySvc"; CopyMode: alwaysoverwrite
-Source: "bin\Release\proxy.html"; DestDir: "{pf32}\TheyLoveGames\ChromeSpeechProxySvc"; CopyMode: alwaysoverwrite
-Source: "bin\Release\proxy.zip"; DestDir: "{pf32}\TheyLoveGames\ChromeSpeechProxySvc"; CopyMode: alwaysoverwrite
-Source: "bin\Release\app.config"; DestDir: "{pf32}\TheyLoveGames\ChromeSpeechProxySvc"; CopyMode: alwaysoverwrite
+Source: "bin\Release x64\ChromeSpeechProxySvc.exe.config"; DestDir: "{pf32}\TheyLoveGames\ChromeSpeechProxySvc"; CopyMode: alwaysoverwrite; BeforeInstall: StopService();
+Source: "bin\Release x64\ChromeSpeechProxySvc.exe"; DestDir: "{pf32}\TheyLoveGames\ChromeSpeechProxySvc"; CopyMode: alwaysoverwrite
+Source: "bin\Release x64\Newtonsoft.Json.dll"; DestDir: "{pf32}\TheyLoveGames\ChromeSpeechProxySvc"; CopyMode: alwaysoverwrite
+Source: "bin\Release x64\Newtonsoft.Json.dll"; DestDir: "{pf32}\TheyLoveGames\ChromeSpeechProxySvc"; CopyMode: alwaysoverwrite
+Source: "bin\Release x64\proxy.html"; DestDir: "{pf32}\TheyLoveGames\ChromeSpeechProxySvc"; CopyMode: alwaysoverwrite
+Source: "bin\Release x64\proxy.zip"; DestDir: "{pf32}\TheyLoveGames\ChromeSpeechProxySvc"; CopyMode: alwaysoverwrite
+Source: "bin\Release x64\app.config"; DestDir: "{pf32}\TheyLoveGames\ChromeSpeechProxySvc"; CopyMode: alwaysoverwrite
 
 [run]
 Filename: {sys}\sc.exe; Parameters: "stop ChromeSpeechProxySvc" ; Flags: runhidden
