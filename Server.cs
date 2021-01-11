@@ -397,10 +397,24 @@ namespace ConsoleChromeSpeechProxy
             }
             else // Windows
             {
-				string args = string.Format("/c start \"\" \"{0}\" {1}", APP_CHROME_WIN_64, uri);
-				process.StartInfo = new System.Diagnostics.ProcessStartInfo(APP_CMD,
-					args);
-				process.Start();
+                if (File.Exists(APP_CHROME_WIN_64))
+                {
+                    string args = string.Format("/c start \"\" \"{0}\" {1}", APP_CHROME_WIN_64, uri);
+                    process.StartInfo = new System.Diagnostics.ProcessStartInfo(APP_CMD,
+                        args);
+                    process.Start();
+                }
+                else if (File.Exists(APP_CHROME_WIN_32))
+                {
+                    string args = string.Format("/c start \"\" \"{0}\" {1}", APP_CHROME_WIN_32, uri);
+                    process.StartInfo = new System.Diagnostics.ProcessStartInfo(APP_CMD,
+                        args);
+                    process.Start();
+                }
+                else
+                {
+                    Console.Error.WriteLine("Chrome could not be found! Please install!");
+                }
             }
 		}
 
