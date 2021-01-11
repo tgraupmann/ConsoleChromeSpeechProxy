@@ -18,7 +18,8 @@ namespace ConsoleChromeSpeechProxy
     class Server
     {
         const string APP_CMD = @"C:\Windows\System32\cmd.exe";
-        const string APP_CHROME_WIN = @"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe";
+        const string APP_CHROME_WIN_32 = @"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe";
+        const string APP_CHROME_WIN_64 = @"C:\Program Files\Google\Chrome\Application\chrome.exe";
 
         const string APP_BASH_MAC = "/bin/bash";
         const string APP_CHROME_MAC = @"/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome";
@@ -396,7 +397,7 @@ namespace ConsoleChromeSpeechProxy
             }
             else // Windows
             {
-				string args = string.Format("/c start \"\" \"{0}\" {1}", APP_CHROME_WIN, uri);
+				string args = string.Format("/c start \"\" \"{0}\" {1}", APP_CHROME_WIN_64, uri);
 				process.StartInfo = new System.Diagnostics.ProcessStartInfo(APP_CMD,
 					args);
 				process.Start();
