@@ -99,4 +99,4 @@ The Mac build uses the `Mono.framework` to launch the proxy.
 
 Send questions and/or feedback to the support@theylovegames.com email.
 
-Support is also available in Discord, you can reach me at 'Tim Graupmann#0611'.
+Support is also available in Discord, you can reach me at `Tim Graupmann#0611`.
