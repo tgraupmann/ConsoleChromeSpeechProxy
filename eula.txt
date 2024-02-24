@@ -2,13 +2,7 @@ Disclaimer:
 
 This program is free software. It comes without any warranty, to
 the extent permitted by applicable law. You can redistribute it
-and/or modify it under the terms of the GNU GENERAL PUBLIC
-LICENSE version 3, as published by THEY LOVE GAMES,
-TAGENIGMA LLC, and Tim Graupmann.
+and/or modify it under the terms of the MIT LICENSE,
+as published by THEY LOVE GAMES, TAGENIGMA LLC, and Tim Graupmann.
 
 Use this software at your own risk.
-
-Use:
-
-The Chrome Speech Proxy depends on the Chrome browser and there
-will be an option to install at the end of this installer.
